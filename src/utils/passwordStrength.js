@@ -55,7 +55,7 @@ const getPasswordStrength = (password = "") => {
 
   return {
     score: 5,
-    label: "Very",
+    label: "Very Strong",
   };
 };
 

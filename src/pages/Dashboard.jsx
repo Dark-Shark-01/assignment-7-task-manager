@@ -9,6 +9,7 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
+import "./dashboard.css";
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
 import { useAuth } from "../context/useAuth";
