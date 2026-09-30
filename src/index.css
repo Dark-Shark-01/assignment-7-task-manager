@@ -2320,3 +2320,319 @@ button {
     min-height: 33px;
   }
 }
+/* =========================================================
+   Completed Tasks — Energetic Ember
+   ========================================================= */
+
+.completed-page {
+  min-height: 100vh;
+  padding: 42px 20px 70px;
+  color: var(--ember-text);
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(255, 107, 53, 0.1),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 90%,
+      rgba(255, 181, 71, 0.06),
+      transparent 30%
+    ),
+    var(--ember-bg);
+}
+
+.completed-container {
+  width: min(1000px, 100%);
+  margin: 0 auto;
+}
+
+.completed-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 28px;
+}
+
+.completed-header h1 {
+  margin: 9px 0 10px;
+  color: var(--ember-text);
+  font-size: clamp(32px, 5vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.completed-header p {
+  margin: 0;
+  color: var(--ember-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.completed-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 13px;
+  border: 1px solid rgba(255, 107, 53, 0.16);
+  border-radius: 11px;
+  color: var(--ember-muted);
+  background: rgba(255, 107, 53, 0.05);
+  white-space: nowrap;
+}
+
+.completed-count svg {
+  color: var(--ember-primary);
+}
+
+.completed-count strong {
+  color: var(--ember-text-soft);
+  font-size: 14px;
+}
+
+.completed-count span {
+  font-size: 9px;
+}
+
+.completed-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.completed-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 82px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  background: rgba(21, 20, 23, 0.7);
+}
+
+.summary-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--ember-primary);
+  background: rgba(255, 107, 53, 0.08);
+}
+
+.completed-summary-card span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ember-muted);
+  font-size: 9px;
+}
+
+.completed-summary-card strong {
+  color: var(--ember-text-soft);
+  font-size: 13px;
+}
+
+.completed-empty {
+  display: flex;
+  min-height: 330px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  text-align: center;
+  background: rgba(21, 20, 23, 0.5);
+}
+
+.completed-empty-icon {
+  display: grid;
+  width: 55px;
+  height: 55px;
+  margin-bottom: 18px;
+  place-items: center;
+  border: 1px solid rgba(255, 107, 53, 0.15);
+  border-radius: 15px;
+  color: var(--ember-primary);
+  background: rgba(255, 107, 53, 0.07);
+}
+
+.completed-empty h2 {
+  margin: 0 0 8px;
+  color: var(--ember-text-soft);
+  font-size: 17px;
+}
+
+.completed-empty p {
+  max-width: 400px;
+  margin: 0 0 22px;
+  color: var(--ember-muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.completed-empty p strong {
+  color: var(--ember-text-soft);
+}
+
+.completed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.completed-task-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 17px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 15px;
+  background: rgba(21, 20, 23, 0.75);
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.completed-task-card:hover {
+  border-color: rgba(255, 107, 53, 0.14);
+  background: rgba(27, 24, 25, 0.85);
+  transform: translateY(-1px);
+}
+
+.completed-task-main {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 13px;
+}
+
+.completed-check {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 10px;
+  color: #8bd8a7;
+  background: rgba(93, 196, 128, 0.08);
+}
+
+.completed-task-content {
+  min-width: 0;
+}
+
+.completed-task-title {
+  display: block;
+  overflow: hidden;
+  margin-bottom: 5px;
+  color: var(--ember-text-soft);
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.completed-task-title:hover {
+  color: var(--ember-primary);
+}
+
+.completed-task-content p {
+  display: -webkit-box;
+  max-width: 650px;
+  margin: 0 0 9px;
+  overflow: hidden;
+  color: var(--ember-muted);
+  font-size: 10px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.completed-task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.completed-task-meta span {
+  padding: 4px 7px;
+  border-radius: 5px;
+  color: #817773;
+  background: rgba(255, 255, 255, 0.035);
+  font-size: 8px;
+}
+
+.reopen-task-button {
+  display: inline-flex;
+  height: 34px;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: var(--ember-muted);
+  background: transparent;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.reopen-task-button:hover {
+  border-color: rgba(255, 107, 53, 0.2);
+  color: var(--ember-primary);
+  background: rgba(255, 107, 53, 0.06);
+}
+
+@media (max-width: 700px) {
+  .completed-page {
+    padding: 30px 15px 50px;
+  }
+
+  .completed-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .completed-count {
+    align-self: flex-start;
+  }
+
+  .completed-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .completed-task-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .reopen-task-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .completed-header h1 {
+    font-size: 34px;
+  }
+
+  .completed-task-main {
+    gap: 10px;
+  }
+}
