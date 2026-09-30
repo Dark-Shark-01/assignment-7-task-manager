@@ -1,7 +1,9 @@
 import {
+  Archive,
   CheckCircle2,
+  ChevronRight,
+  CircleAlert,
   Clock3,
-  ListFilter,
   Plus,
   Search,
   Trash2,
@@ -9,253 +11,442 @@ import {
 import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
 
-const initialTasks = [
-  {
-    id: 1,
-    title: "Complete React Assignment",
-    description:
-      "Finish the authentication system and prepare the project for submission.",
-    priority: "High",
-    category: "Academic",
-    status: "Pending",
-    raisedAt: "30 Sep 2026, 10:30 AM",
-    dueDate: "02 Oct 2026",
-  },
-  {
-    id: 2,
-    title: "Review Project Documentation",
-    description:
-      "Check the project structure, README and GitHub repository before submission.",
-    priority: "Medium",
-    category: "Academic",
-    status: "Raised",
-    raisedAt: "30 Sep 2026, 11:15 AM",
-    dueDate: "03 Oct 2026",
-  },
-  {
-    id: 3,
-    title: "Update Portfolio",
-    description:
-      "Add the latest React project and update the project descriptions.",
-    priority: "Low",
-    category: "Personal",
-    status: "Closed",
-    raisedAt: "29 Sep 2026, 04:20 PM",
-    dueDate: "30 Sep 2026",
-  },
-];
+const TASK_STORAGE_KEY = "assignment7_tasks";
+
+const STATUS_OPTIONS = ["All", "Raised", "Pending", "Closed"];
+const PRIORITY_OPTIONS = ["All", "High", "Medium", "Low"];
+
+const getTasks = () => {
+  try {
+    const storedTasks = localStorage.getItem(TASK_STORAGE_KEY);
+
+    if (!storedTasks) {
+      return [];
+    }
+
+    const parsedTasks = JSON.parse(storedTasks);
+
+    return Array.isArray(parsedTasks) ? parsedTasks : [];
+  } catch {
+    return [];
+  }
+};
+
+const formatDate = (dateValue) => {
+  if (!dateValue) {
+    return "No due date";
+  }
+
+  const date = new Date(`${dateValue}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    return "No due date";
+  }
+
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const getPriorityClass = (priority) => {
+  switch (priority) {
+    case "High":
+      return "task-priority-high";
+    case "Medium":
+      return "task-priority-medium";
+    case "Low":
+      return "task-priority-low";
+    default:
+      return "";
+  }
+};
+
+const getStatusClass = (status) => {
+  switch (status) {
+    case "Closed":
+      return "task-status-closed";
+    case "Pending":
+      return "task-status-pending";
+    case "Raised":
+      return "task-status-raised";
+    default:
+      return "";
+  }
+};
 
 function Tasks() {
-  const [tasks, setTasks] = useState(initialTasks);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [tasks, setTasks] = useState(getTasks);
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
-  const [categoryFilter, setCategoryFilter] = useState("All");
+
+  const statistics = useMemo(() => {
+    const total = tasks.length;
+    const completed = tasks.filter(
+      (task) => task.status === "Closed"
+    ).length;
+    const pending = tasks.filter(
+      (task) => task.status === "Pending"
+    ).length;
+    const raised = tasks.filter(
+      (task) => task.status === "Raised"
+    ).length;
+
+    return {
+      total,
+      completed,
+      pending,
+      raised,
+    };
+  }, [tasks]);
 
   const filteredTasks = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const normalizedSearch = searchQuery.trim().toLowerCase();
 
     return tasks.filter((task) => {
       const matchesSearch =
         !normalizedSearch ||
-        task.title.toLowerCase().includes(normalizedSearch) ||
-        task.description.toLowerCase().includes(normalizedSearch);
+        task.header?.toLowerCase().includes(normalizedSearch) ||
+        task.description?.toLowerCase().includes(normalizedSearch) ||
+        task.category?.toLowerCase().includes(normalizedSearch);
 
       const matchesStatus =
-        statusFilter === "All" || task.status === statusFilter;
+        statusFilter === "All" ||
+        task.status === statusFilter;
 
       const matchesPriority =
-        priorityFilter === "All" || task.priority === priorityFilter;
-
-      const matchesCategory =
-        categoryFilter === "All" || task.category === categoryFilter;
+        priorityFilter === "All" ||
+        task.priority === priorityFilter;
 
       return (
         matchesSearch &&
         matchesStatus &&
-        matchesPriority &&
-        matchesCategory
+        matchesPriority
       );
     });
   }, [
-    tasks,
-    searchTerm,
-    statusFilter,
     priorityFilter,
-    categoryFilter,
+    searchQuery,
+    statusFilter,
+    tasks,
   ]);
 
-  const handleDelete = (taskId) => {
-    setTasks((currentTasks) =>
-      currentTasks.filter((task) => task.id !== taskId),
+  const deleteTask = (taskId) => {
+    const shouldDelete = window.confirm(
+      "Are you sure you want to delete this task?"
     );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    const updatedTasks = tasks.filter(
+      (task) => task.id !== taskId
+    );
+
+    localStorage.setItem(
+      TASK_STORAGE_KEY,
+      JSON.stringify(updatedTasks)
+    );
+
+    setTasks(updatedTasks);
   };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("All");
+    setPriorityFilter("All");
+  };
+
+  const hasActiveFilters =
+    searchQuery.trim() ||
+    statusFilter !== "All" ||
+    priorityFilter !== "All";
 
   return (
     <main className="tasks-page">
-      <header className="tasks-header">
-        <div>
-          <span className="tasks-eyebrow">TASK MANAGEMENT</span>
+      <div className="tasks-container">
+        <header className="tasks-header">
+          <div>
+            <span className="add-task-eyebrow">
+              TASK MANAGEMENT
+            </span>
 
-          <h1>Tasks</h1>
-
-          <p>
-            Organize your academic and personal work from one
-            workspace.
-          </p>
-        </div>
-
-        <Link className="add-task-button" to="/tasks/add">
-          <Plus size={18} />
-          Add Task
-        </Link>
-      </header>
-
-      <section className="tasks-toolbar">
-        <div className="task-search">
-          <Search size={17} />
-
-          <input
-            type="search"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Search tasks..."
-            aria-label="Search tasks"
-          />
-        </div>
-
-        <div className="task-filter-icon" aria-hidden="true">
-          <ListFilter size={17} />
-        </div>
-
-        <select
-          value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value)}
-          aria-label="Filter by status"
-        >
-          <option value="All">All Status</option>
-          <option value="Raised">Raised</option>
-          <option value="Pending">Pending</option>
-          <option value="Closed">Closed</option>
-        </select>
-
-        <select
-          value={priorityFilter}
-          onChange={(event) => setPriorityFilter(event.target.value)}
-          aria-label="Filter by priority"
-        >
-          <option value="All">All Priority</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
-        </select>
-
-        <select
-          value={categoryFilter}
-          onChange={(event) => setCategoryFilter(event.target.value)}
-          aria-label="Filter by category"
-        >
-          <option value="All">All Category</option>
-          <option value="Academic">Academic</option>
-          <option value="Personal">Personal</option>
-        </select>
-      </section>
-
-      <section className="tasks-summary">
-        <div>
-          <strong>{filteredTasks.length}</strong>
-          <span>
-            {filteredTasks.length === 1 ? " task" : " tasks"} found
-          </span>
-        </div>
-
-        <span>
-          {tasks.length} total {tasks.length === 1 ? "task" : "tasks"}
-        </span>
-      </section>
-
-      <section className="tasks-list">
-        {filteredTasks.length > 0 ? (
-          filteredTasks.map((task) => (
-            <article className="task-card" key={task.id}>
-              <div className="task-card-main">
-                <div className="task-card-top">
-                  <div className="task-badges">
-                    <span
-                      className={`priority-badge priority-${task.priority.toLowerCase()}`}
-                    >
-                      {task.priority}
-                    </span>
-
-                    <span className="category-badge">
-                      {task.category}
-                    </span>
-                  </div>
-
-                  <button
-                    className="delete-task-button"
-                    type="button"
-                    onClick={() => handleDelete(task.id)}
-                    aria-label={`Delete ${task.title}`}
-                    title="Delete task"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-
-                <h2>{task.title}</h2>
-
-                <p>{task.description}</p>
-
-                <div className="task-meta">
-                  <span>
-                    <Clock3 size={14} />
-                    Due {task.dueDate}
-                  </span>
-
-                  <span>
-                    <CheckCircle2 size={14} />
-                    Raised {task.raisedAt}
-                  </span>
-                </div>
-              </div>
-
-              <div className="task-card-status">
-                <span
-                  className={`status-badge status-${task.status.toLowerCase()}`}
-                >
-                  {task.status}
-                </span>
-
-                <Link
-                  className="task-details-link"
-                  to={`/tasks/${task.id}`}
-                >
-                  View Details
-                </Link>
-              </div>
-            </article>
-          ))
-        ) : (
-          <div className="tasks-empty">
-            <div className="tasks-empty-icon">
-              <ListFilter size={23} />
-            </div>
-
-            <h2>No tasks found</h2>
+            <h1>Tasks</h1>
 
             <p>
-              Try changing your filters or create a new task for
-              your workspace.
+              Organize your work, track progress, and stay in
+              control.
             </p>
+          </div>
 
-            <Link className="secondary-action" to="/tasks/add">
-              <Plus size={16} />
-              Create Task
+          <div className="tasks-header-actions">
+            <Link
+              to="/tasks/completed"
+              className="secondary-task-button"
+            >
+              <Archive size={15} />
+              Completed
+            </Link>
+
+            <Link
+              to="/tasks/add"
+              className="create-task-button"
+            >
+              <Plus size={15} />
+              Add Task
             </Link>
           </div>
+        </header>
+
+        <section className="task-statistics">
+          <div className="task-stat-card">
+            <div className="task-stat-icon">
+              <CheckCircle2 size={17} />
+            </div>
+
+            <div>
+              <span>Total Tasks</span>
+              <strong>{statistics.total}</strong>
+            </div>
+          </div>
+
+          <div className="task-stat-card">
+            <div className="task-stat-icon">
+              <Clock3 size={17} />
+            </div>
+
+            <div>
+              <span>Pending</span>
+              <strong>{statistics.pending}</strong>
+            </div>
+          </div>
+
+          <div className="task-stat-card">
+            <div className="task-stat-icon">
+              <CircleAlert size={17} />
+            </div>
+
+            <div>
+              <span>Raised</span>
+              <strong>{statistics.raised}</strong>
+            </div>
+          </div>
+
+          <div className="task-stat-card">
+            <div className="task-stat-icon">
+              <CheckCircle2 size={17} />
+            </div>
+
+            <div>
+              <span>Completed</span>
+              <strong>{statistics.completed}</strong>
+            </div>
+          </div>
+        </section>
+
+        <section className="task-toolbar">
+          <div className="task-search">
+            <Search size={15} />
+
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) =>
+                setSearchQuery(event.target.value)
+              }
+              placeholder="Search tasks..."
+              aria-label="Search tasks"
+            />
+          </div>
+
+          <div className="task-filter-group">
+            <label htmlFor="status-filter">
+              Status
+            </label>
+
+            <select
+              id="status-filter"
+              value={statusFilter}
+              onChange={(event) =>
+                setStatusFilter(event.target.value)
+              }
+            >
+              {STATUS_OPTIONS.map((status) => (
+                <option value={status} key={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="task-filter-group">
+            <label htmlFor="priority-filter">
+              Priority
+            </label>
+
+            <select
+              id="priority-filter"
+              value={priorityFilter}
+              onChange={(event) =>
+                setPriorityFilter(event.target.value)
+              }
+            >
+              {PRIORITY_OPTIONS.map((priority) => (
+                <option value={priority} key={priority}>
+                  {priority}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              className="clear-task-filters"
+              onClick={clearFilters}
+            >
+              Clear
+            </button>
+          )}
+        </section>
+
+        <section className="tasks-result-header">
+          <div>
+            <span className="tasks-result-label">
+              Showing
+            </span>
+
+            <strong>
+              {filteredTasks.length}{" "}
+              {filteredTasks.length === 1
+                ? "task"
+                : "tasks"}
+            </strong>
+          </div>
+
+          {hasActiveFilters && (
+            <span className="tasks-filter-active">
+              Filters active
+            </span>
+          )}
+        </section>
+
+        {filteredTasks.length === 0 ? (
+          <section className="tasks-empty">
+            <div className="tasks-empty-icon">
+              <CheckCircle2 size={25} />
+            </div>
+
+            <h2>
+              {tasks.length === 0
+                ? "No tasks yet"
+                : "No matching tasks"}
+            </h2>
+
+            <p>
+              {tasks.length === 0
+                ? "Create your first task and start organizing your work."
+                : "Try changing your search or filter settings."}
+            </p>
+
+            {tasks.length === 0 ? (
+              <Link
+                to="/tasks/add"
+                className="create-task-button"
+              >
+                <Plus size={15} />
+                Create Task
+              </Link>
+            ) : (
+              <button
+                type="button"
+                className="secondary-task-button"
+                onClick={clearFilters}
+              >
+                Clear Filters
+              </button>
+            )}
+          </section>
+        ) : (
+          <section className="tasks-list">
+            {filteredTasks.map((task) => (
+              <article className="task-card" key={task.id}>
+                <div className="task-card-main">
+                  <div
+                    className={`task-status-indicator ${getStatusClass(
+                      task.status
+                    )}`}
+                    aria-hidden="true"
+                  />
+
+                  <div className="task-card-content">
+                    <div className="task-card-topline">
+                      <Link
+                        to={`/tasks/${task.id}`}
+                        className="task-card-title"
+                      >
+                        {task.header || "Untitled task"}
+                      </Link>
+
+                      <span
+                        className={`task-priority ${getPriorityClass(
+                          task.priority
+                        )}`}
+                      >
+                        {task.priority || "Low"}
+                      </span>
+                    </div>
+
+                    <p className="task-card-description">
+                      {task.description ||
+                        "No description provided."}
+                    </p>
+
+                    <div className="task-card-meta">
+                      <span>
+                        {task.category || "Uncategorized"}
+                      </span>
+
+                      <span>
+                        {task.status || "Raised"}
+                      </span>
+
+                      <span>
+                        Due {formatDate(task.dueDate)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="task-card-actions">
+                  <Link
+                    to={`/tasks/${task.id}`}
+                    className="task-view-button"
+                    aria-label={`View ${task.header || "task"}`}
+                  >
+                    View
+                    <ChevronRight size={14} />
+                  </Link>
+
+                  <button
+                    type="button"
+                    className="task-delete-button"
+                    onClick={() => deleteTask(task.id)}
+                    aria-label={`Delete ${
+                      task.header || "task"
+                    }`}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </article>
+            ))}
+          </section>
         )}
-      </section>
+      </div>
     </main>
   );
 }
